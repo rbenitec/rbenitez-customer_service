@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: rbenitez-customer-service
+    version: 1.0.0
+  data:
+    mongodb:
+      uri: "mongodb+srv://m001-estudiante:rjbc2095@sandbox.ymd2iym.mongodb.net/rbenitez_banking?retryWrites=true&w=majority&appName=Sandbox"
+server:
+  port: 8081
+logging:
+  file:
+    name: /home/usrfc/mth-applications-dev/biller/log/challengeservice.log
+  level:
+    root: ERROR
+    org:
+      springframework: ERROR
+      springframework.boot.web.embedded.tomcat: INFO
+      springframework.boot.web.embedded.netty: INFO
+    service:
+      customer: DEBUG
+  pattern:
+    console: "%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n"
