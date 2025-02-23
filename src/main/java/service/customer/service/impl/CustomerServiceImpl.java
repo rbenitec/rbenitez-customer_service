@@ -1,29 +1,131 @@
 package service.customer.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
-import service.customer.api.ClientesApiDelegate;
-import service.customer.entity.Customer;
-import service.customer.model.RequestBodyCrearUsuario;
-import service.customer.model.StatusResponseData;
-import service.customer.model.StatusResponseOKDelete;
-import service.customer.repository.CustomerRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import service.customer.exception.BusinessException;
+import service.customer.mapper.MapperToCustomer;
+import service.customer.mapper.MapperToResponseCustomer;
+import service.customer.model.dto.RequestCustomerDto;
+import service.customer.model.dto.ResponseCustomerDto;
+import service.customer.model.dto.ResponseDeleteDto;
+import service.customer.repository.CustomerRepository;
 import service.customer.service.CustomerService;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerServiceImpl implements ClientesApiDelegate {
+public class CustomerServiceImpl implements CustomerService {
 
+    private final CustomerRepository customerRepository;
+
+    private final MapperToResponseCustomer mapperToResponseCustomer;
+    private final MapperToCustomer mapperToCustomer;
+
+    @Override
+    public Flux<ResponseCustomerDto> getAllCustomer() {
+        return customerRepository.findAll()
+                .map(mapperToResponseCustomer)
+                .onErrorMap(throwable -> new BusinessException("[getAllCustomer] - Error in the process of getting all customers", throwable.getMessage()));
+    }
+
+    @Override
+    public Mono<ResponseCustomerDto> saveCustomer(Mono<RequestCustomerDto> requestCustomerDto) {
+        return requestCustomerDto
+                .map(mapperToCustomer)
+                .flatMap(customerRepository::save)
+                .switchIfEmpty(Mono.error(new BusinessException("saveCustomer", "[saveCustomer]: Error saving customer to database")))
+                .map(mapperToResponseCustomer)
+                .onErrorMap(ex -> new BusinessException("[saveCustomer]: Error in the process of saving a customer", ex.getMessage()));
+    }
+
+    @Override
+    public Mono<ResponseCustomerDto> findClientById(String customerId) {
+        return customerRepository.findById(customerId)
+                .map(mapperToResponseCustomer)
+                .onErrorMap(throwable -> new BusinessException("[saveCustomer]: error in the process of obtaining a client by its id", throwable.getMessage()));
+    }
+
+    @Override
+    public Mono<ResponseCustomerDto> updateCustomer(String customerId, Mono<RequestCustomerDto> requestCustomerDto) {
+        return customerRepository.findById(customerId)
+                .switchIfEmpty(Mono.error(new BusinessException("updateCustomer", "Client with id" + customerId + "does not exist")))
+                .flatMap(customer -> requestCustomerDto
+                        .map(mapperToCustomer)
+                        .flatMap(customerUpdate -> {
+                            customerUpdate.setId(customerId);
+                            return customerRepository.save(customerUpdate);
+                        })
+                        .map(mapperToResponseCustomer))
+                .onErrorMap(ex -> new BusinessException("[updateCustomer]: Error in the process of update a customer", ex.getMessage()));
+    }
+
+    @Override
+    public Mono<ResponseDeleteDto> deleteCustomer(String customerId) {
+        return customerRepository.deleteById(customerId)
+                .then(Mono.just(ResponseDeleteDto.builder()
+                        .message("The client was successfully deleted, with id: ".concat(customerId))
+                        .build()))
+                .onErrorResume(error -> Mono.just(ResponseDeleteDto.builder()
+                        .message("Error deleting customer with id: "
+                                .concat(customerId)
+                                .concat(" - error: ".concat(error.getMessage()))
+                        )
+                        .build()));
+    }
+
+    /*
+    private final CustomerRepository customerRepository;
+
+    @Override
+    public Mono<ResponseEntity<ResponseDelete>> deleteCustomer(String customerId, String xUserId, String xConsumerId, String xTransactionId, String xCallerId, ServerWebExchange exchange) {
+        return CustomerApiDelegate.super.deleteCustomer(customerId, xUserId, xConsumerId, xTransactionId, xCallerId, exchange);
+    }
+
+    @Override
+    public Mono<ResponseEntity<ResponseCustomerDto>> getCustomerById(String customerId, String xUserId, String xConsumerId, String xTransactionId, String xCallerId, ServerWebExchange exchange) {
+        return CustomerApiDelegate.super.getCustomerById(customerId, xUserId, xConsumerId, xTransactionId, xCallerId, exchange);
+    }
+
+    @Override
+    public Mono<ResponseEntity<ResponseCustomerDto>> saveCustomer(String xUserId, String xConsumerId, String xTransactionId, String xCallerId, Mono<RequestCustomerDto> requestCustomerDto, ServerWebExchange exchange) {
+        return requestCustomerDto
+                .map(requestBody -> {
+                    Customer customer = new Customer();
+                    customer.setCustomerType(requestBody.getCustomerType());
+                    customer.setDni(requestBody.getDni());
+                    customer.setNames(requestBody.getNames());
+                    customer.setLastName(requestBody.getLastName());
+                    customer.setPhone(requestBody.getPhone());
+                    customer.setAddress(requestBody.getAddress());
+                    customer.setCreatedDate(LocalDateTime.now().toString());
+                    customer.setCreatedDate(LocalDateTime.now().toString());
+                    return customer;
+                })
+                .flatMap(customerRepository::save)
+                .map(customer -> {
+                    ResponseCustomerDto statusResponseData = new ResponseCustomerDto();
+                    statusResponseData.setCustomerType(customer.getCustomerType());
+                    statusResponseData.setAddress(customer.getAddress());
+                    statusResponseData.setDateCreated(customer.getCreatedDate());
+                    statusResponseData.setDni(customer.getDni());
+                    statusResponseData.setDateUpdate(customer.getUpdateDate());
+                    statusResponseData.setEmail(customer.getEmail());
+                    statusResponseData.setId(customer.getId());
+                    statusResponseData.setLastName(customer.getLastName());
+                    statusResponseData.setNames(customer.getNames());
+                    statusResponseData.setPhone(customer.getPhone());
+                    return statusResponseData;
+                })
+                .map(ResponseEntity.status(HttpStatus.OK)::body)
+                .defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+    }
+
+    @Override
+    public Mono<ResponseEntity<ResponseCustomerDto>> updateCustomerById(String customerId, String xUserId, String xConsumerId, String xTransactionId, String xCallerId, Mono<RequestCustomerDto> requestCustomerDto, ServerWebExchange exchange) {
+        return CustomerApiDelegate.super.updateCustomerById(customerId, xUserId, xConsumerId, xTransactionId, xCallerId, requestCustomerDto, exchange);
+    }
+    /*
     private final CustomerRepository customerRepository;
 
     @Override

@@ -5,24 +5,22 @@ info:
   contact:
     name: Roberto Benitez
     email: rbenitez_20_95@hotmail.com
-  license:
-    name: rbenitez
   version: 1.0.0
 servers:
   - url: http://localhost:8081
     description: Desarrollo
 paths:
-  /clientes:
+  /customer:
     post:
       tags:
-        - save
-      summary: crear clientes.
+        - Created Customer
+      summary: Operacion para crear clientes.
       description: |
         ## 👋 Propósito
         
         Mic de Negocio permite crear clientes.
 
-      operationId: save
+      operationId: saveCustomer
       parameters:
         - $ref: "#/components/parameters/x-user-id"
         - $ref: "#/components/parameters/x-consumer-id"
@@ -33,7 +31,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/requestBodyCrearUsuario'
+              $ref: '#/components/schemas/requestCustomerDto'
         required: true
       responses:
         "200":
@@ -52,17 +50,17 @@ paths:
           $ref: '#/components/responses/InternalServerErrorStatus'
         "504":
           $ref: '#/components/responses/GatewayTimeoutErrorStatus'
-  /clientes/{id}:
+  /customer/{id}:
     get:
       tags:
-        - obtenercliente
+        - Get Customer By Id
       summary: obtener cliente en base a su id
       description: |
         ## 👋 Propósito
         
-        Esta Mic de Negocio permite obtener Clientes.
+        Esta operacion permite obtener Clientes.
 
-      operationId: obtenercliente
+      operationId: getCustomerById
       parameters:
         - $ref: "#/components/parameters/id"
         - $ref: "#/components/parameters/x-user-id"
@@ -89,14 +87,14 @@ paths:
           $ref: '#/components/responses/GatewayTimeoutErrorStatus'
     put:
       tags:
-        - update
+        - Update Customer By Id
       summary: actualizar cliente en base a su id
       description: |
         ## 👋 Propósito
         
         Esta Mic de Negocio permite actualizar clientes.
 
-      operationId: update
+      operationId: updateCustomerById
       parameters:
         - $ref: "#/components/parameters/id"
         - $ref: "#/components/parameters/x-user-id"
@@ -108,7 +106,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/requestBodyCrearUsuario'
+              $ref: '#/components/schemas/requestCustomerDto'
         required: true
       responses:
         "200":
@@ -129,14 +127,14 @@ paths:
           $ref: '#/components/responses/GatewayTimeoutErrorStatus'
     delete:
       tags:
-        - delete
+        - _Delete Customer
       summary: eliminar cliente en base a su id
       description: |
         ## 👋 Propósito
         
         Esta Mic de Negocio permite eliminar clientes.
 
-      operationId: delete
+      operationId: deleteCustomer
       parameters:
         - $ref: "#/components/parameters/id"
         - $ref: "#/components/parameters/x-user-id"
@@ -163,7 +161,7 @@ paths:
           $ref: '#/components/responses/GatewayTimeoutErrorStatus'
 components:
   schemas:
-    requestBodyCrearUsuario:
+    requestCustomerDto:
       description: Datos para crear un cliente.
       type: object
       properties:
@@ -206,12 +204,12 @@ components:
         address: "Av. los sauces 371"
         phone: "915184044"
         email: "rbenitez_20_95@hotmail.com"
-    StatusResponseOKDelete:
+    ResponseDelete:
       type: object
       properties:
         message:
           type: string
-    StatusResponseData:
+    ResponseCustomerDto:
       type: object
       properties:
         id:
@@ -245,8 +243,6 @@ components:
     StatusResponse:
       type: object
       properties:
-        status:
-          type: integer
         statusCode:
           type: integer
         type:
@@ -312,9 +308,9 @@ components:
         type: string
       example: "9876599"
     id:
-      name: id
+      name: customerId
       in: path
-      description: User ID
+      description: Customer ID
       style: simple
       required: true
       schema:
@@ -326,7 +322,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/StatusResponseData'
+            $ref: '#/components/schemas/ResponseCustomerDto'
           examples:
             OK:
               $ref: '#/components/examples/OK'
@@ -335,10 +331,10 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/StatusResponseOKDelete'
+            $ref: '#/components/schemas/ResponseDeleteDto'
           examples:
             OK:
-              $ref: '#/components/examples/OKDelete'
+              $ref: '#/components/examples/ResponseDeleteDto'
     Accepted:
       description: Respuesta con error de validación y/o reglas de negocio.
       content:
@@ -422,7 +418,7 @@ components:
         title: Número de producto no válido.
         detail: mensaje:Aperturar cuenta
         instance: "{/mic-bs-loans-deposits-savings-account-aperturarcuenta/v1/ahorros/aperturar}"
-    OKDelete:
+    ResponseDelete:
       value:
         message: "Cuenta bancaria eliminada exitosamente"
     BadRequest:
