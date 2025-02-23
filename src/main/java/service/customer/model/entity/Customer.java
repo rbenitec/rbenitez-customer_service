@@ -1,4 +1,4 @@
-package service.customer.entity;
+package service.customer.model.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;

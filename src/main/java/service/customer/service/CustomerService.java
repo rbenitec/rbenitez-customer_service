@@ -1,20 +1,20 @@
 package service.customer.service;
 
-import service.customer.entity.Customer;
-import service.customer.model.CustomerDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import service.customer.model.dto.RequestCustomerDto;
+import service.customer.model.dto.ResponseCustomerDto;
+import service.customer.model.dto.ResponseDeleteDto;
 
 public interface CustomerService {
-	Flux<Customer> findAll();
-	Mono<Customer> save(Customer customerDto);
+    Flux<ResponseCustomerDto> getAllCustomer();
 
-	Flux<Customer> findClientByAge(String dni);
-	/*
+    Mono<ResponseCustomerDto> saveCustomer(Mono<RequestCustomerDto> customerDto);
 
-	Mono<CustomerDto> update(CustomerDto customerDto);
+    Mono<ResponseCustomerDto> findClientById(String customerId);
 
-	Mono<Void> delete(String id);
+    Mono<ResponseCustomerDto> updateCustomer(String customerId, Mono<RequestCustomerDto> customerDto);
 
-	 */
+    Mono<ResponseDeleteDto> deleteCustomer(String customerId);
+
 }
