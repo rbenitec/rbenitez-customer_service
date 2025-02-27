@@ -12,7 +12,7 @@
 	<artifactId>customer-msservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rbenitez-customer-service</name>
-	<description>customer project msservice</description>
+	<description>customer management project msservice</description>
 	<properties>
 		<java.version>11</java.version>
 		<spring-cloud.version>2021.0.2</spring-cloud.version>

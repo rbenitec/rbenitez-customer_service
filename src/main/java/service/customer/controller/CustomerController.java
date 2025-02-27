@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import service.customer.model.dto.RequestCustomerDto;
 import service.customer.model.dto.ResponseCustomerDto;
 import service.customer.model.dto.ResponseDeleteDto;
 import service.customer.service.CustomerService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/customer")
@@ -46,8 +47,8 @@ public class CustomerController {
      * @return ResponseCustomerDto
      */
     @GetMapping()   // Mostrar todos los clientes
-    public Flux<ResponseEntity<ResponseCustomerDto>> getAllCustomer() {
-        return customerService.getAllCustomer()
+    public Mono<ResponseEntity<List<ResponseCustomerDto>>> getAllCustomer() {
+        return customerService.getAllCustomer().collectList()
                 .map(ResponseEntity.status(HttpStatus.OK)::body);
     }
 
