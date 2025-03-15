@@ -1,6 +1,7 @@
 package service.customer.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,6 +14,7 @@ import service.customer.model.dto.ResponseDeleteDto;
 import service.customer.repository.CustomerRepository;
 import service.customer.service.CustomerService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
@@ -34,14 +36,58 @@ public class CustomerServiceImpl implements CustomerService {
         return requestCustomerDto
                 .map(mapperToCustomer)
                 .flatMap(customerRepository::save)
-                .switchIfEmpty(Mono.error(new BusinessException("saveCustomer", "[saveCustomer]: Error saving customer to database")))
+                .switchIfEmpty(Mono.error(new BusinessException("saveCustomer", "Error saving customer to database")))
                 .map(mapperToResponseCustomer)
                 .onErrorMap(ex -> new BusinessException("[saveCustomer]: Error in the process of saving a customer", ex.getMessage()));
+    }
+
+    public Mono<ResponseCustomerDto> saveCustomerFunctional(Mono<RequestCustomerDto> requestCustomerDto) {
+        // Validación del tipo de cliente
+        return requestCustomerDto
+                .flatMap(requestCustomer -> {
+                    if (!"personal".equalsIgnoreCase(requestCustomer.getCustomerType()) &&
+                            !"empresarial".equalsIgnoreCase(requestCustomer.getCustomerType())) {
+                        return Mono.error(new BusinessException("saveCustomer", "Tipo de cliente no válido."));
+                    }
+
+                    // Validación de subtipos
+                    if ("VIP".equalsIgnoreCase(requestCustomer.getSubType()) &&
+                            !"personal".equalsIgnoreCase(requestCustomer.getCustomerType())) {
+                        return Mono.error(new BusinessException("saveCustomer", "El perfil VIP solo aplica para clientes personales."));
+                    }
+
+                    if ("PYME".equalsIgnoreCase(requestCustomer.getSubType()) &&
+                            !"empresarial".equalsIgnoreCase(requestCustomer.getCustomerType())) {
+                        return Mono.error(new BusinessException("saveCustomer", "El perfil PYME solo aplica para clientes empresariales."));
+                    }
+
+                    // Validación de tarjeta de crédito para clientes VIP y PYME
+                    if (("VIP".equalsIgnoreCase(requestCustomer.getSubType()) ||
+                            "PYME".equalsIgnoreCase(requestCustomer.getSubType())) &&
+                            !requestCustomer.isHasCreditCard()) {
+                        return Mono.error(new BusinessException("",
+                                "El cliente " + requestCustomer.getSubType() + " debe tener una tarjeta de crédito activa."
+                        ));
+                    }
+                    return customerRepository.save(mapperToCustomer.apply(requestCustomer))
+                            .switchIfEmpty(Mono.error(new BusinessException("saveCustomer", "Error saving customer to database")))
+                            .map(mapperToResponseCustomer)
+                            .onErrorMap(ex -> new BusinessException("[saveCustomer]: Error in the process of saving a customer", ex.getMessage()));
+
+                });
+
+//        return requestCustomerDto
+//                .map(mapperToCustomer)
+//                .flatMap(customerRepository::save)
+//                .switchIfEmpty(Mono.error(new BusinessException("saveCustomer", "Error saving customer to database")))
+//                .map(mapperToResponseCustomer)
+//                .onErrorMap(ex -> new BusinessException("[saveCustomer]: Error in the process of saving a customer", ex.getMessage()));
     }
 
     @Override
     public Mono<ResponseCustomerDto> findClientById(String customerId) {
         return customerRepository.findById(customerId)
+                .doOnSuccess(customer -> log.info("Customer found: {}", customer))
                 .map(mapperToResponseCustomer)
                 .onErrorMap(throwable -> new BusinessException("[saveCustomer]: error in the process of obtaining a client by its id", throwable.getMessage()));
     }

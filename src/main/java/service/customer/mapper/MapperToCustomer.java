@@ -13,7 +13,9 @@ public class MapperToCustomer implements Function<RequestCustomerDto, Customer> 
     public Customer apply(RequestCustomerDto requestCustomerDto) {
         return Customer.builder()
                 .customerType(requestCustomerDto.getCustomerType())
-                .dni(requestCustomerDto.getDni())
+                .subType(requestCustomerDto.getSubType())
+                .documentType(requestCustomerDto.getDocumentType())
+                .documentNumber(requestCustomerDto.getDocumentNumber())
                 .names(requestCustomerDto.getNames())
                 .lastName(requestCustomerDto.getLastName())
                 .address(requestCustomerDto.getAddress())
@@ -21,6 +23,7 @@ public class MapperToCustomer implements Function<RequestCustomerDto, Customer> 
                 .email(requestCustomerDto.getEmail())
                 .createdDate(LocalDateTime.now().toString())
                 .updateDate(LocalDateTime.now().toString())
+                .hasCreditCard(requestCustomerDto.isHasCreditCard())
                 .build();
     }
 }

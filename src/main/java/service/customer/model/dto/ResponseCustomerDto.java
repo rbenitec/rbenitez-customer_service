@@ -18,8 +18,12 @@ public class ResponseCustomerDto {
     private String id;
     @JsonProperty("customerType")
     private String customerType;
-    @JsonProperty("dni")
-    private String dni;
+    @JsonProperty("subType")
+    private String subType;
+    @JsonProperty("documentType")
+    private String documentType;
+    @JsonProperty("documentNumber")
+    private String documentNumber;
     @JsonProperty("names")
     private String names;
     @JsonProperty("lastName")
@@ -34,4 +38,6 @@ public class ResponseCustomerDto {
     private String dateCreated;
     @JsonProperty("dateUpdate")
     private String dateUpdate;
+    @JsonProperty("hasCreditCard")
+    private Boolean hasCreditCard;
 }

@@ -14,14 +14,17 @@ public class MapperToResponseCustomer implements Function<Customer, ResponseCust
         return new ResponseCustomerDto(
                 customer.getId(),
                 customer.getCustomerType(),
-                customer.getDni(),
+                customer.getSubType(),
+                customer.getDocumentType(),
+                customer.getDocumentNumber(),
                 customer.getNames(),
                 customer.getLastName(),
                 customer.getAddress(),
                 customer.getPhone(),
                 customer.getEmail(),
                 customer.getCreatedDate(),
-                customer.getUpdateDate()
+                customer.getUpdateDate(),
+                customer.getHasCreditCard()
         );
     }
 }
