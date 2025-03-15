@@ -9,11 +9,14 @@ import lombok.Setter;
 @Setter
 @Builder
 public class RequestCustomerDto {
-
     @JsonProperty("customerType")
-    private String customerType;
-    @JsonProperty("dni")
-    private String dni;
+    private String customerType; //PERSONAL O EMPRESARIAL
+    @JsonProperty("subType")
+    private String subType; //VIP, PYME (si aplica)
+    @JsonProperty("documentType")
+    private String documentType;
+    @JsonProperty("documentNumber")
+    private String documentNumber;
     @JsonProperty("names")
     private String names;
     @JsonProperty("lastName")
@@ -24,4 +27,6 @@ public class RequestCustomerDto {
     private String phone;
     @JsonProperty("email")
     private String email;
+    @JsonProperty("hasCreditCard")
+    private boolean hasCreditCard;
 }

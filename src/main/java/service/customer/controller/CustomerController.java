@@ -2,6 +2,7 @@ package service.customer.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +21,7 @@ import service.customer.service.CustomerService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/customer")
 @RequiredArgsConstructor
@@ -37,6 +39,7 @@ public class CustomerController {
      */
     @PostMapping()
     Mono<ResponseEntity<ResponseCustomerDto>> createdCustomer(@RequestBody Mono<RequestCustomerDto> customerDto) {
+
         return customerService.saveCustomer(customerDto)
                 .map(ResponseEntity.status(HttpStatus.CREATED)::body);
     }
@@ -48,6 +51,7 @@ public class CustomerController {
      */
     @GetMapping()   // Mostrar todos los clientes
     public Mono<ResponseEntity<List<ResponseCustomerDto>>> getAllCustomer() {
+        log.info("Get all customer");
         return customerService.getAllCustomer().collectList()
                 .map(ResponseEntity.status(HttpStatus.OK)::body);
     }
@@ -61,6 +65,7 @@ public class CustomerController {
 
     @GetMapping("/{customerId}")
     public Mono<ResponseEntity<ResponseCustomerDto>> getCustomerById(@PathVariable("customerId") String customerId) {
+        log.info("Get customer by id: {} ", customerId);
         return customerService.findClientById(customerId)
                 .map(ResponseEntity.status(HttpStatus.OK)::body);
     }
